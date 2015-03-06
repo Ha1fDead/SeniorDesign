@@ -1,0 +1,5 @@
+1.) Figure out how to communicate with xbees / LCUs
+2.) Add script to add a universityId to a locker
+3.) Add script to remove a universityId from a locker
+4.) Add script to clear a locker
+5.) Add script to set locker password
