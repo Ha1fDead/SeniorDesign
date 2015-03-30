@@ -1,5 +1,17 @@
 1.) Figure out how to communicate with xbees / LCUs
-2.) Add script to add a universityId to a locker
-3.) Add script to remove a universityId from a locker
-4.) Add script to clear a locker
-5.) Add script to set locker password
+2.) Define packet structure
+	ID, Voltage
+3.) Verify encryption works in plaintext from rasbian OS
+4.) Setup python MCU server
+5.) Setup user input on MCU server
+6.) Setup LCU input on MCU server
+	a.) API call takes in an ID & a percentage
+		Update percentage in database accordingly
+7.) Setup daemon to monitor LCU percentage, display warning accordingly
+8.) Setup User GUI
+9.) Purchase new lcd that runs off of USB or HDMI
+10.) Finalize database scripts for managing platform
+11.) look into automating group / user creation
+12.) Figure out case / lcd / keyboard situation
+13.) Implement ACK protocol w/ Corey
+14.) Implement NTPDATE protocol w/ Corey
