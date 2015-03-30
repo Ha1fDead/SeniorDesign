@@ -2,53 +2,75 @@ from DAL import DataAccess;
 # Import and init an XBee device
 from xbee import XBee,ZigBee
 import serial
+import sys
+import time
 
 #Handles all of the I/O of the MCU
 #loops through to infinite, checking for input
 #if input is here, process it
 #input can come from user or any of the LCUs
 
-dal = DataAccess()
-
-dal.InitializeDB()
-
-#dal.AddNewLocker(4)
-
-#dal.GetLocker(1)
-#dal.CreateUser(0, 1, False)
-#dal.GetUser(0)
-
-#while(1):
-
-	#Check for user input
-		#process user input
-
-	#check for LCU input
-		#process LCU request	
+def main():
+	server = MCUServer()
+	server.Run()
 
 
-ser = serial.Serial('/dev/ttyUSB0', 19200)
+class MCUServer:
 
-xbee = XBee(ser)
+	def __init__(self):
+		print 'Initializing MCU Server'
+		print 'Initializing Db access'
+		dal = DataAccess()
+		dal.InitializeDB()
+
+
+		self.port = '/dev/tty.usbserial-A6007wOm'
+		#port = '/dev/ttyUSB0'
+		self.baud = 19200
+
+		print 'Port: ' + self.port
+		print 'Baud Rate: ' + str(self.baud)
+
+		try:
+			self.ser = serial.Serial(self.port, self.baud)
+			self.xbee = XBee(self.ser, callback=self.ReceiveData)
     
-    # Set remote DIO pin 2 to low (mode 4)
-#xbee.at(command='EE', parameter='\x00')
-#xbee.at(command='KY', parameter='FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+		except Exception, e:
+			print 'Could not initialize serial interface.'
+			sys.exit()
+		else:
+			pass
+		finally:
+			pass
 
-while True:
-	#ser.write('a');
-	txt = raw_input('Please swipe your ISU IdCard\n')
+	def ReceiveData(self, data):
+		print data
 
-	print 'Your card number is: ' + txt
+	def Run(self):	
+		xbeeDest = '\x00\x00'
+		receivedAck = False
+		shouldExit = False
 
-	xbee.send('tx', dest_addr='\x00\x00', data=txt)
-	print 'Sent: ' + txt
+		while not shouldExit:
+			txt = raw_input('Please swipe your ISU IdCard\n')
 
-#	try:
-#		data = xbee.wait_read_frame()
-#		print 'Data: ' + data
-#
-#	except KeyboardInterrupt:
-#		break;
+			print 'Your card number is: ' + txt
 
-ser.close()
+			print 'Sending message until we get an Ack or we timeout'
+
+			while not receivedAck:
+				self.xbee.send('tx', dest_addr=xbeeDest, data=txt)
+				print 'Sent: ' + txt
+
+				try:
+					time.sleep(0.001)
+				except KeyboardInterrupt:
+					shouldExit = True
+					break;
+
+		self.xbee.halt()
+		self.ser.close()
+		sys.exit()
+
+if __name__ == "__main__":
+	main()
