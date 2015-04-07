@@ -1,4 +1,6 @@
 import sqlite3
+from locker import Locker
+from user import User
 
 class DataAccess:
 
@@ -17,13 +19,12 @@ class DataAccess:
 		''')
 		cursor.execute('''
 			CREATE TABLE if not exists users
-			(studentId INTEGER PRIMARY KEY, 
-			stuLockerId INTEGER REFERENCES lockers(lockerId),
-			isAdmin BOOLEAN)
+			(studentId TEXT PRIMARY KEY, 
+			stuLockerId INTEGER REFERENCES lockers(lockerId))
 		''')
 		connection.close()
 
-	def GetLocker(self, Id):
+	def GetLockerFromId(self, Id):
 		connection = self.GetConnection()
 		cursor = connection.cursor()
 
@@ -32,9 +33,30 @@ class DataAccess:
 		''', (Id,))
 		
 		locker = cursor.fetchone()
-		print locker
 		connection.close()
-		return locker
+
+		if(locker is not None):
+			locker = Locker(locker)
+			return locker
+
+		else:
+			return None
+
+	def GetLocker(self, username, password):
+		connection = self.GetConnection()
+		cursor = connection.cursor()
+
+		cursor.execute('''
+				SELECT * FROM lockers WHERE (curGroupName) = ? AND (curGroupPass) = ?
+			''', (username,password))
+
+		locker = cursor.fetchone()
+		connection.close()
+		if(locker is not None):
+			locker = Locker(locker)
+			return locker
+		else:
+			return None
 
 	def GetUser(self, Id):
 		connection = self.GetConnection()
@@ -45,25 +67,31 @@ class DataAccess:
 		''', (Id,))
 
 		user = cursor.fetchone()
-		print user
 		connection.close()
-		return user
 
-	def CreateUser(self, studentId, lockerId, isAdmin):
+		if(user is not None):
+			user = User(user)
+			return user
+		else:
+			return None
+
+	def CreateUser(self, studentId, lockerId):
 		#adds a new user with the associated locker
 		connection = self.GetConnection()
 		cursor = connection.cursor()
 
 		cursor.execute('''
 			INSERT INTO users 
-				(studentId, stuLockerId, isAdmin) VALUES
-				(?, ?, ?)
-		''', (studentId, lockerId, isAdmin,))
+				(studentId, stuLockerId) VALUES
+				(?, ?)
+		''', (studentId, lockerId,))
 
 		connection.commit()
 		connection.close()
 
-	def AddNewLocker(self, Id):
+		return self.GetUser(studentId)
+
+	def CreateLocker(self, Id):
 		#adds a new locker with the associated ID
 		#the id is also what is used to communicate with locker
 		#grab ID from cooking process
@@ -76,6 +104,8 @@ class DataAccess:
 
 		connection.commit()
 		connection.close()
+
+		return self.GetLockerFromId(Id)
 
 	
 	def GetConnection(self):
