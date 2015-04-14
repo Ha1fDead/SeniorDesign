@@ -25,8 +25,8 @@ class MCUServer:
 		self.dal = DataAccess()
 		self.dal.InitializeDB()
 
-		self.port = '/dev/tty.usbserial-A6007wOm'
-		#self.port = '/dev/ttyUSB0'
+		#self.port = '/dev/tty.usbserial-A6007wOm'
+		self.port = '/dev/ttyUSB0'
 		self.baud = 19200
 		self.ServerPanID = '3332'
 		self.Timeout = 5
@@ -75,15 +75,15 @@ class MCUServer:
 
 	def TryToOpenLocker(self, locker):
 		receivedAckOrTimedout = False
-		dataToSend = str(locker.Id) + ' OPEN'
+		dataToSend = str(locker.Id) + ' open\n'
+		self.ser.write(dataToSend)
+		print 'Sent: ' + dataToSend
+
 		#Grab the start time to determine if we have timedout on locker acking us
 		startTime = time.time()
 		print 'Checking Start Time: ' + str(startTime)
 		#While we have not received an ack, we haven't timed out, then continue to send
 		while not receivedAckOrTimedout:
-			#send data
-			self.ser.write(dataToSend)
-			print 'Sent: ' + dataToSend
 			#Is there any data waiting?
 			if(self.ser.inWaiting() > 0):
 				print 'Data is waiting'
