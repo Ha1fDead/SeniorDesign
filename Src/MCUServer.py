@@ -59,7 +59,7 @@ class MCUServer:
 
 	def CheckForIsuIdCard(self, potentialId):
 		print 'Checking: ' + potentialId
-		if(potentialId == '60095739208269118=4912120000000000000'):
+		if(potentialId == '60095739208269118=4912120000000000000' or potentialId == '60095739773633915=4912120000000000000' or potentialId == '60095787233546410=4912120000000000000'):
 			return True
 		else:
 			return False
@@ -87,8 +87,7 @@ class MCUServer:
 		while not receivedAckOrTimedout:
 			#Is there any data waiting?
 			if(self.ser.inWaiting() > 0):
-				print 'Data is waiting'
-				print self.ser.read()
+				receivedAckOrTimedout = True
 				#do read logic here
 
 				#Have we timed out?
